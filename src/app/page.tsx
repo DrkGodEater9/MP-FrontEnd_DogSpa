@@ -1,7 +1,6 @@
-'use client';
+ 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthStore } from '@/store/auth';
 import { PawPrint, Scissors, Heart, Clock, Users, Award, MapPin, Phone, Mail, Star, Package } from 'lucide-react';
+import { useAuthStore } from '@/store/auth';
 
 const services = [
   {
@@ -69,8 +68,7 @@ const products = [
 ];
 
 export default function Home() {
-  const { login, register, isAuthenticated, isLoading } = useAuthStore();
-  const router = useRouter();
+  const { login, register } = useAuthStore();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState({ 
@@ -83,35 +81,16 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, router]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
-
-  if (isAuthenticated) {
-    return null; // Will redirect to dashboard
-  }
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    
     try {
       await login(loginForm);
       setIsLoginOpen(false);
       setLoginForm({ email: '', password: '' });
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message ?? 'Error al iniciar sesión');
     } finally {
       setIsSubmitting(false);
     }
@@ -121,13 +100,12 @@ export default function Home() {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    
     try {
       await register(registerForm);
       setIsLoginOpen(false);
       setRegisterForm({ email: '', password: '', firstName: '', lastName: '', phone: '' });
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message ?? 'Error al registrar');
     } finally {
       setIsSubmitting(false);
     }
@@ -147,112 +125,112 @@ export default function Home() {
               />
               <span className="text-2xl font-bold text-gray-800">DogSpa</span>
             </div>
-            <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-orange-500 hover:bg-orange-600">
-                  Iniciar Sesión
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Bienvenido a DogSpa</DialogTitle>
-                  <DialogDescription>
-                    Inicia sesión o regístrate para acceder a nuestros servicios
-                  </DialogDescription>
-                </DialogHeader>
-                <Tabs defaultValue="login" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
-                    <TabsTrigger value="register">Registrarse</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="login">
-                    <form onSubmit={handleLogin} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={loginForm.email}
-                          onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Contraseña</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={loginForm.password}
-                          onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                          required
-                        />
-                      </div>
-                      {error && <p className="text-red-500 text-sm">{error}</p>}
-                      <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Iniciando...' : 'Iniciar Sesión'}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                  <TabsContent value="register">
-                    <form onSubmit={handleRegister} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center space-x-3">
+              <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost">Iniciar Sesión</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Bienvenido a DogSpa</DialogTitle>
+                    <DialogDescription>
+                      Inicia sesión o regístrate para acceder a nuestros servicios
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Tabs defaultValue="login" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
+                      <TabsTrigger value="register">Registrarse</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="login">
+                      <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="firstName">Nombre</Label>
+                          <Label htmlFor="email">Email</Label>
                           <Input
-                            id="firstName"
-                            value={registerForm.firstName}
-                            onChange={(e) => setRegisterForm({ ...registerForm, firstName: e.target.value })}
+                            id="email"
+                            type="email"
+                            value={loginForm.email}
+                            onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                             required
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName">Apellido</Label>
+                          <Label htmlFor="password">Contraseña</Label>
                           <Input
-                            id="lastName"
-                            value={registerForm.lastName}
-                            onChange={(e) => setRegisterForm({ ...registerForm, lastName: e.target.value })}
+                            id="password"
+                            type="password"
+                            value={loginForm.password}
+                            onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                             required
                           />
                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="reg-email">Email</Label>
-                        <Input
-                          id="reg-email"
-                          type="email"
-                          value={registerForm.email}
-                          onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="reg-password">Contraseña</Label>
-                        <Input
-                          id="reg-password"
-                          type="password"
-                          value={registerForm.password}
-                          onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Teléfono (opcional)</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={registerForm.phone}
-                          onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
-                        />
-                      </div>
-                      {error && <p className="text-red-500 text-sm">{error}</p>}
-                      <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Registrando...' : 'Registrarse'}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                </Tabs>
-              </DialogContent>
-            </Dialog>
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                          {isSubmitting ? 'Iniciando...' : 'Iniciar Sesión'}
+                        </Button>
+                      </form>
+                    </TabsContent>
+                    <TabsContent value="register">
+                      <form onSubmit={handleRegister} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="firstName">Nombre</Label>
+                            <Input
+                              id="firstName"
+                              value={registerForm.firstName}
+                              onChange={(e) => setRegisterForm({ ...registerForm, firstName: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="lastName">Apellido</Label>
+                            <Input
+                              id="lastName"
+                              value={registerForm.lastName}
+                              onChange={(e) => setRegisterForm({ ...registerForm, lastName: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="reg-email">Email</Label>
+                          <Input
+                            id="reg-email"
+                            type="email"
+                            value={registerForm.email}
+                            onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="reg-password">Contraseña</Label>
+                          <Input
+                            id="reg-password"
+                            type="password"
+                            value={registerForm.password}
+                            onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Teléfono (opcional)</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={registerForm.phone}
+                            onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
+                          />
+                        </div>
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                          {isSubmitting ? 'Registrando...' : 'Registrarse'}
+                        </Button>
+                      </form>
+                    </TabsContent>
+                  </Tabs>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </header>
